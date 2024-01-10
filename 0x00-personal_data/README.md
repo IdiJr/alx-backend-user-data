@@ -1,5 +1,6 @@
 # 0x00. Personal data
 ![](./PII.png)
+
 This project contains tasks performed to understand the folowing concepts:
 - Examples of Personally Identifiable Information (PII)
 - How to implement a log filter that will obfuscate PII fields
