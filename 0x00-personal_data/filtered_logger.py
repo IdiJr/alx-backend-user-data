@@ -4,14 +4,13 @@ filtered_logger module
 """
 import os
 import re
-from typing import List
+from typing import List, Optional
 import logging
 import mysql.connector
 
 
 class RedactingFormatter(logging.Formatter):
-    """ Redacting Formatter class
-        """
+    """ Redacting Formatter class """
 
     REDACTION = "***"
     FORMAT = "[HOLBERTON] %(name)s %(levelname)s %(asctime)-15s: %(message)s"
@@ -55,11 +54,37 @@ def get_logger() -> logging.Logger:
     return logger
 
 
-def get_db() -> mysql.connector.connection.MySQLConnection:
-    """ connect to MySQL database """
-    return mysql.connector.connect(
-        host=os.getenv("PERSONAL_DATA_DB_HOST", "root"),
-        database=os.getenv("PERSONAL_DATA_DB_NAME"),
-        user=os.getenv("PERSONAL_DATA_DB_USERNAME", "localhost"),
-        password=os.getenv("PERSONAL_DATA_DB_PASSWORD", ""),
+def get_db():
+    """ Returns a MySQL database connection """
+    username = os.getenv('PERSONAL_DATA_DB_USERNAME', 'root')
+    password = os.getenv('PERSONAL_DATA_DB_PASSWORD', '')
+    host = os.getenv('PERSONAL_DATA_DB_HOST', 'localhost')
+    database = os.getenv('PERSONAL_DATA_DB_NAME', '')
+
+    connection = mysql.connector.connect(
+        user=username,
+        password=password,
+        host=host,
+        database=database
     )
+
+    return connection
+
+
+def main():
+    """
+    main function
+    """
+    con = get_db()
+    users = con.cursor()
+    users.execute("SELECT CONCAT('name=', name, ';ssn=', ssn, ';ip=', ip, \
+        ';user_agent', user_agent, ';') AS message FROM users;")
+    formatter = RedactingFormatter(fields=PII_FIELDS)
+    logger = get_logger()
+
+    for user in users:
+        logger.log(logging.INFO, user[0])
+
+
+if __name__ == "__main__":
+    main()
