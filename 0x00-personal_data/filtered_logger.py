@@ -2,9 +2,11 @@
 """
 filtered_logger module
 """
+import os
 import re
 from typing import List
 import logging
+import mysql.connector
 
 
 class RedactingFormatter(logging.Formatter):
@@ -51,3 +53,20 @@ def get_logger() -> logging.Logger:
     logger.propagate = False
 
     return logger
+
+
+def get_db() -> mysql.connector.connection.MySQLConnection:
+    """ connect to MySQL database """
+    username = os.getenv('PERSONAL_DATA_DB_USERNAME', 'root')
+    password = os.getenv('PERSONAL_DATA_DB_PASSWORD', '')
+    host = os.getenv('PERSONAL_DATA_DB_HOST', 'localhost')
+    database = os.getenv('PERSONAL_DATA_DB_NAME', '')
+
+    connection = mysql.connector.connect(
+        user=username,
+        password=password,
+        host=host,
+        database=database
+    )
+
+    return connection
