@@ -62,10 +62,10 @@ def get_db() -> mysql.connector.connection.MySQLConnection:
     database = os.getenv("PERSONAL_DATA_DB_NAME", "")
 
     connection = mysql.connector.connect(
-        user=username,
-        port=3306,
-        password=password,
         host=host,
+        port=3306,
+        user=username,
+        password=password,
         database=database
     )
 
@@ -73,18 +73,22 @@ def get_db() -> mysql.connector.connection.MySQLConnection:
 
 
 def main():
-    """
-    main function
-    """
-    con = get_db()
-    users = con.cursor()
-    users.execute("SELECT CONCAT('name=', name, ';ssn=', ssn, ';ip=', ip, \
-        ';user_agent', user_agent, ';') AS message FROM users;")
-    formatter = RedactingFormatter(fields=PII_FIELDS)
+    """ Main function to retrieve and log user data """
     logger = get_logger()
-
-    for user in users:
-        logger.log(logging.INFO, user[0])
+    try:
+        db = get_db()
+        cursor = db.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM users;")
+        rows = cursor.fetchall()
+        for row in rows:
+            log_message = "; ".join(f"{key}={value}"
+                                    for key, value in row.items())
+            logger.info(log_message)
+    except Exception as e:
+        logger.error(f"Error retrieving data from the database: {str(e)}")
+    finally:
+        cursor.close()
+        db.close()
 
 
 if __name__ == "__main__":
