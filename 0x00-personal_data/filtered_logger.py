@@ -2,11 +2,11 @@
 """
 filtered_logger module
 """
-import os
-import re
-from typing import List, Optional
 import logging
 import mysql.connector
+import os
+import re
+from typing import List
 
 
 class RedactingFormatter(logging.Formatter):
