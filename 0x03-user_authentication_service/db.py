@@ -5,6 +5,7 @@ DB class
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm.exc import NoResultFound
 from user import Base, User
 
 
@@ -39,3 +40,17 @@ class DB:
         session.add(new_user)
         session.commit()
         return new_user
+    
+
+    def find_user_by(self, **kwargs) -> User:
+        """Find a user by given filter arguments
+        Returns:
+            User: Found User object
+        Raises:
+            NoResultFound: When no results are found
+            InvalidRequestError: When wrong query arguments are passed
+        """
+        user = self._session.query(User).filter_by(**kwargs).first()
+        if not user:
+            raise NoResultFound
+        return user
