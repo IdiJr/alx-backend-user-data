@@ -53,3 +53,20 @@ class DB:
         if not user:
             raise NoResultFound
         return user
+
+    def update_user(self, user_id: int, **kwargs) -> None:
+        """Update a user's attributes in the database
+        Args:
+            user_id (int): User's ID
+            kwargs: Arbitrary keyword arguments for updating user attributes
+        Raises:
+            ValueError: When an invalid argument is passed
+        """
+        DATA = ['id', 'email', 'hashed_password', 'session_id', 'reset_token']
+        user = self.find_user_by(id=user_id)
+        for key, val in kwargs.items():
+            if key not in DATA:
+                raise ValueError
+            setattr(user, key, val)
+        self._session.commit()
+        return None
