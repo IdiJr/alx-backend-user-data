@@ -4,8 +4,11 @@ DB class
 """
 
 from sqlalchemy import create_engine
+from sqlalchemy.exc import InvalidRequestError
+from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.orm.session import Session
 from user import Base, User
 
 
@@ -20,7 +23,9 @@ class DB:
         self.__session = None
 
     @property
-    def _session(self):
+    def _session(self) -> Session:
+        """Memoized session object
+        """
         if self.__session is None:
             DBSession = sessionmaker(bind=self._engine)
             self.__session = DBSession()
@@ -28,10 +33,9 @@ class DB:
 
     def add_user(self, email: str, hashed_password: str) -> User:
         """Adds a new user to the database
-
         Args:
-            email (string): email of user
-            hashed_password (string): password of user
+            email (str): email of user
+            hashed_password (str): password of user
         Returns:
             User: user created
         """
@@ -62,11 +66,14 @@ class DB:
         Raises:
             ValueError: When an invalid argument is passed
         """
-        DATA = ['id', 'email', 'hashed_password', 'session_id', 'reset_token']
-        user = self.find_user_by(id=user_id)
-        for key, val in kwargs.items():
-            if key not in DATA:
-                raise ValueError
-            setattr(user, key, val)
-        self._session.commit()
-        return None
+        try:
+            DATA = ['id', 'email', 'hashed_password',
+                    'session_id', 'reset_token']
+            user = self.find_user_by(id=user_id)
+            for key, val in kwargs.items():
+                if key not in DATA:
+                    raise ValueError(f"Invalid attribute: {key}")
+                setattr(user, key, val)
+            self._session.commit()
+        except NoResultFound:
+            raise ValueError(f"User with ID {user_id} not found")
