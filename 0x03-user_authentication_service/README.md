@@ -4,7 +4,7 @@ In the industry, you should not implement your own authentication system and use
 ![](./userauth.jpg)
 
 ## Resources
-### Read or wach
-- [Flask documentation] (https://intranet.alxswe.com/rltoken/lKExyvivrrW4eh0eI8UV6A)
+### Read or watch
+- [Flask documentation](https://intranet.alxswe.com/rltoken/lKExyvivrrW4eh0eI8UV6A)
 - [Request module](https://intranet.alxswe.com/rltoken/py7LuuD1u2MUwcaf8wnDzQ)
 - [HTTP status codes](https://intranet.alxswe.com/rltoken/cj-mc5ZHp_KyXn1yikHC0A)
