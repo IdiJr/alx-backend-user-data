@@ -12,6 +12,9 @@ from sqlalchemy.orm.session import Session
 from user import Base, User
 
 
+DATA = ['id', 'email', 'hashed_password', 'session_id', 'reset_token']
+
+
 class DB:
 
     def __init__(self):
@@ -39,6 +42,8 @@ class DB:
         Returns:
             User: user created
         """
+        if not email or not hashed_password:
+            return
         new_user = User(email=email, hashed_password=hashed_password)
         session = self._session
         session.add(new_user)
@@ -66,14 +71,10 @@ class DB:
         Raises:
             ValueError: When an invalid argument is passed
         """
-        try:
-            DATA = ['id', 'email', 'hashed_password',
-                    'session_id', 'reset_token']
-            user = self.find_user_by(id=user_id)
-            for key, val in kwargs.items():
-                if key not in DATA:
-                    raise ValueError(f"Invalid attribute: {key}")
-                setattr(user, key, val)
-            self._session.commit()
-        except NoResultFound:
-            raise ValueError(f"User with ID {user_id} not found")
+        user = self.find_user_by(id=user_id)
+        for key, val in kwargs.items():
+            if key not in DATA:
+                raise ValueError
+            setattr(user, key, val)
+        self._session.commit()
+        return None
