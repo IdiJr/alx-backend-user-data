@@ -40,7 +40,6 @@ class DB:
         session.add(new_user)
         session.commit()
         return new_user
-    
 
     def find_user_by(self, **kwargs) -> User:
         """Find a user by given filter arguments
