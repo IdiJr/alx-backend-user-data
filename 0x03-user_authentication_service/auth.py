@@ -98,10 +98,10 @@ class Auth:
             str: User's email.
         """
         if session_id is None:
-            return
+            return None
         try:
             user = self._db.find_user_by(session_id=session_id)
-            return user.email
+            return user
         except NoResultFound:
             return
 
@@ -111,11 +111,7 @@ class Auth:
         Args:
             user_id (int): User ID.
         """
-        try:
-            user = self._db.find_user_by(id=user_id)
-            self._db.update_user(user.id, session_id=None)
-        except NoResultFound:
-            pass
+        self._db.update_user(user_id, session_id=None)
 
     def get_reset_password_token(self, email: str) -> str:
         """Get a reset password token for a user.
