@@ -3,7 +3,7 @@
 Flask app
 """
 from auth import Auth
-from flask import Flask, jsonify, request, abort, redirect
+from flask import Flask, jsonify, request, abort, redirect, make_response
 
 AUTH = Auth()
 app = Flask(__name__)
@@ -48,25 +48,34 @@ def login() -> str:
     if not valid_login:
         abort(401)
     session_id = AUTH.create_session(email)
-    response = jsonify({"email": f"{email}", "message": "Logged in"})
+    response = jsonify({"email": f"{email}", "message": "logged in"})
     response.set_cookie('session_id', session_id)
     return response
 
 
-@app.route('/sessions', methods=['DELETE'], strict_slashes=False)
-def logout() -> str:
-    """Logout
-
-    Returns:
-        str: Message
-    """
-    session_id = request.cookies.get('session_id')
+def destroy_session_and_redirect(session_id):
+    """Destroy user's session and redirect to '/'."""
     user = AUTH.get_user_from_session_id(session_id)
     if user:
         AUTH.destroy_session(user.id)
         return redirect('/')
     else:
         abort(403)
+
+
+def logout_response(session_id):
+    """Generate the logout response."""
+    response = make_response(jsonify({"message": "logged out"}))
+    response.delete_cookie('session_id')
+    return response
+
+
+@app.route('/sessions', methods=['DELETE'], strict_slashes=False)
+def logout() -> str:
+    """Logout"""
+    session_id = request.cookies.get('session_id')
+    return (destroy_session_and_redirect
+            (session_id) if session_id else abort(403))
 
 
 @app.route('/profile', methods=['GET'], strict_slashes=False)
