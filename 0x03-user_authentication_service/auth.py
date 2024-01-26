@@ -21,6 +21,7 @@ def _hash_password(password: str) -> str:
     """
     return hashpw(password.encode('utf-8'), gensalt())
 
+
 def _generate_uuid() -> str:
     """Generate a new UUID.
 
@@ -53,7 +54,7 @@ class Auth:
         except NoResultFound:
             # Register the user
             return self._db.add_user(email, _hash_password(password))
-    
+
     # def valid_login(self, email: str, password: str) -> bool:
     #     """Check the validity of user login credentials.
 
